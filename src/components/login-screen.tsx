@@ -1,21 +1,7 @@
 import { useRef, useState } from "react";
+import { Check } from "lucide-react";
 import { GROK_PROVIDERS, authClient, signIn } from "@/lib/auth/client";
 import { Button, Field, controlClass, scrollToFirstError } from "@/components/ui";
-
-const HOUSES = [
-  ["JNI", "JNI AGRI"],
-  ["FRT", "Frontier"],
-  ["RSL", "Royal"],
-  ["YUS", "Yusidel"],
-  ["HDE", "Humble"],
-  ["HAV", "Havillah"],
-];
-
-const DESKS = [
-  ["Floor", "Receive the truck, weigh it, and clear inspection."],
-  ["Procurement", "Post the desk price and see who paid above it."],
-  ["Executive", "Read tonnes, gaps, and the chain of custody."],
-];
 
 export function Boot({ label = "Opening the yard…" }: { label?: string }) {
   return (
@@ -129,37 +115,41 @@ export function LoginScreen() {
     <main className="min-h-screen bg-bg text-ink">
       <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-5 py-8 lg:grid-cols-2 lg:px-8">
         <div className="order-2 lg:order-1">
-          <p className="text-xs font-semibold tracking-widest text-primary uppercase">JNI Scalehouse</p>
-          <h1 className="mt-3 max-w-xl font-display text-4xl leading-tight text-ink lg:text-5xl">
-            One yard for every sister company.
+          <h1 className="max-w-xl font-display text-4xl leading-tight text-ink lg:text-5xl">
+            Scalehouse Operations
           </h1>
-          <p className="mt-4 max-w-lg text-lg text-muted">
-            Gate intake, bridge weights, moisture and seals, French lines for the driver, and a price
-            check against the desk. The AppSheet master log is already on the board.
+          <p className="mt-4 max-w-lg text-lg text-muted leading-relaxed">
+            Centralized weighbridge management, truck intake, and commodity tracking across all sister companies.
           </p>
-          <ul className="mt-8 grid grid-cols-3 gap-2 sm:grid-cols-6">
-            {HOUSES.map(([code, name]) => (
-              <li key={code} className="rounded-lg border border-line bg-surface px-2 py-3 text-center">
-                <p className="font-display text-lg text-primary">{code}</p>
-                <p className="text-xs text-muted">{name}</p>
-              </li>
-            ))}
+          <ul className="mt-8 space-y-3.5 text-sm text-muted">
+            <li className="flex items-center gap-3">
+              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Check className="size-3.5 stroke-[2.5]" />
+              </span>
+              <span>Automated weighbridge gross and tare verification</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Check className="size-3.5 stroke-[2.5]" />
+              </span>
+              <span>Real-time truck queue, waybill, and inspection tracking</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Check className="size-3.5 stroke-[2.5]" />
+              </span>
+              <span>Unified commodity reporting across sister entities</span>
+            </li>
           </ul>
-          <dl className="mt-8 space-y-3">
-            {DESKS.map(([name, copy]) => (
-              <div key={name} className="grid gap-1 border-t border-line pt-3 sm:grid-cols-[8rem_1fr]">
-                <dt className="text-sm font-semibold text-primary">{name}</dt>
-                <dd className="text-sm text-muted">{copy}</dd>
-              </div>
-            ))}
-          </dl>
         </div>
 
         <div className="order-1 rounded-lg border border-line bg-surface p-6 shadow-sm lg:order-2">
-          <h2 className="font-display text-3xl">Sign in to the yard</h2>
+          <h2 className="font-display text-3xl">
+            {mode === "signin" ? "Sign In" : "Register"}
+          </h2>
           <p className="mt-2 text-sm text-muted">
             {mode === "signin"
-              ? "Enter your staff email and password to access the scalehouse desks."
+              ? "Enter your staff email and password to access the scalehouse portal."
               : "Create an account. The first registered staff member becomes the yard administrator."}
           </p>
 
@@ -251,8 +241,8 @@ export function LoginScreen() {
               {loading
                 ? "Processing…"
                 : mode === "signin"
-                  ? "Sign In to Yard"
-                  : "Register & Enter"}
+                  ? "Sign In"
+                  : "Create Account"}
             </Button>
           </form>
 

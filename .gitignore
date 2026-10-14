@@ -1,0 +1,36 @@
+# Environment and secret files
+.env
+.env.*
+*.env
+*.local
+env.local
+!*.example
+
+# Dependencies
+node_modules/
+.node_modules.lock
+.pnpm-store/
+
+# Build and output artifacts
+dist/
+.output/
+.vercel/
+.tanstack/
+.vinxi/
+coverage/
+
+# OS and system files
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sandboxing, IDE, test screenshots, and zip archives
+artifacts/
+attachments/
+screenshots/
+*.zip
+.grok/
+.project_id

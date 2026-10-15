@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { authClient, authEnabled } from "./client";
 
 /** Normalized user shape used across the app, auth on or off. */
@@ -65,6 +65,12 @@ export function useCurrentUserState(): CurrentUserState {
 
 function useSessionUserState(): CurrentUserState {
   const { data, isPending } = authClient.useSession();
+  const hasSettledRef = useRef(false);
+  if (!isPending) {
+    hasSettledRef.current = true;
+  }
+  const effectivePending = isPending && !hasSettledRef.current;
+
   const id = data?.user.id;
   const displayName = data?.user.name ?? null;
   const primaryEmail = data?.user.email ?? null;
@@ -73,7 +79,7 @@ function useSessionUserState(): CurrentUserState {
     () => (id ? { id, displayName, primaryEmail, profileImageUrl, isDevFallback: false } : null),
     [id, displayName, primaryEmail, profileImageUrl],
   );
-  return useMemo(() => ({ user, isPending }), [user, isPending]);
+  return useMemo(() => ({ user, isPending: effectivePending }), [user, effectivePending]);
 }
 
 /**

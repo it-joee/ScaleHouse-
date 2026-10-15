@@ -14,15 +14,86 @@ export function Boot({ label = "Opening the yard…" }: { label?: string }) {
   );
 }
 
+const STORAGE_EMAIL = "scalehouse_draft_email";
+const STORAGE_NAME = "scalehouse_draft_name";
+const STORAGE_PWD = "scalehouse_draft_pwd";
+const STORAGE_MODE = "scalehouse_draft_mode";
+
+function clearDraftStorage() {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(STORAGE_EMAIL);
+    window.sessionStorage.removeItem(STORAGE_NAME);
+    window.sessionStorage.removeItem(STORAGE_PWD);
+    window.sessionStorage.removeItem(STORAGE_MODE);
+  } catch {
+    // ignore
+  }
+}
+
 export function LoginScreen() {
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">(() => {
+    if (typeof window !== "undefined") {
+      const saved = window.sessionStorage.getItem(STORAGE_MODE);
+      if (saved === "signup" || saved === "signin") return saved;
+    }
+    return "signin";
+  });
+  const [name, setName] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.sessionStorage.getItem(STORAGE_NAME) || "";
+    }
+    return "";
+  });
+  const [email, setEmail] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.sessionStorage.getItem(STORAGE_EMAIL) || "";
+    }
+    return "";
+  });
+  const [password, setPassword] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.sessionStorage.getItem(STORAGE_PWD) || "";
+    }
+    return "";
+  });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const switchMode = (nextMode: "signin" | "signup") => {
+    setMode(nextMode);
+    setError(null);
+    setFieldErrors({});
+    try {
+      window.sessionStorage.setItem(STORAGE_MODE, nextMode);
+    } catch {}
+  };
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    clearFieldError("name");
+    try {
+      window.sessionStorage.setItem(STORAGE_NAME, val);
+    } catch {}
+  };
+
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    clearFieldError("email");
+    try {
+      window.sessionStorage.setItem(STORAGE_EMAIL, val);
+    } catch {}
+  };
+
+  const handlePasswordChange = (val: string) => {
+    setPassword(val);
+    clearFieldError("password");
+    try {
+      window.sessionStorage.setItem(STORAGE_PWD, val);
+    } catch {}
+  };
 
   const clearFieldError = (field: string) => {
     if (fieldErrors[field]) {
@@ -102,6 +173,7 @@ export function LoginScreen() {
           return;
         }
       }
+      clearDraftStorage();
       window.location.href = "/";
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Authentication failed.";
@@ -156,11 +228,7 @@ export function LoginScreen() {
           <div className="mt-6 flex border-b border-line">
             <button
               type="button"
-              onClick={() => {
-                setMode("signin");
-                setError(null);
-                setFieldErrors({});
-              }}
+              onClick={() => switchMode("signin")}
               className={`pb-2.5 px-4 text-sm font-semibold border-b-2 transition-colors ${
                 mode === "signin"
                   ? "border-primary text-primary"
@@ -171,11 +239,7 @@ export function LoginScreen() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                setMode("signup");
-                setError(null);
-                setFieldErrors({});
-              }}
+              onClick={() => switchMode("signup")}
               className={`pb-2.5 px-4 text-sm font-semibold border-b-2 transition-colors ${
                 mode === "signup"
                   ? "border-primary text-primary"
@@ -198,10 +262,7 @@ export function LoginScreen() {
                 <input
                   type="text"
                   value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    clearFieldError("name");
-                  }}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="e.g. Samuel Okyeame"
                   className={controlClass(Boolean(fieldErrors.name))}
                   aria-invalid={Boolean(fieldErrors.name)}
@@ -213,10 +274,7 @@ export function LoginScreen() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  clearFieldError("email");
-                }}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 placeholder="you@company.com"
                 className={controlClass(Boolean(fieldErrors.email))}
                 aria-invalid={Boolean(fieldErrors.email)}
@@ -227,10 +285,7 @@ export function LoginScreen() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  clearFieldError("password");
-                }}
+                onChange={(e) => handlePasswordChange(e.target.value)}
                 placeholder="At least 8 characters"
                 className={controlClass(Boolean(fieldErrors.password))}
                 aria-invalid={Boolean(fieldErrors.password)}

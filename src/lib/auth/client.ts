@@ -19,6 +19,9 @@ import { GROK_PROVIDERS } from "./providers";
  */
 export const authClient = createAuthClient({
   plugins: [genericOAuthClient()],
+  sessionOptions: {
+    refetchOnWindowFocus: false,
+  },
   fetchOptions: {
     onRequest(ctx) {
       const token = getBearerToken();

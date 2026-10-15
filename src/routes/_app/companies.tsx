@@ -59,7 +59,7 @@ function CompaniesPage() {
             <article key={company.id} className="rounded-lg border border-line bg-surface p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-display text-3xl text-primary">{company.code}</p>
+                  <p className="font-display text-3xl font-extrabold tracking-tight text-primary">{company.code}</p>
                   <h2 className="text-lg font-semibold">{company.name}</h2>
                 </div>
                 <p className="text-sm text-muted tabular-nums">{trucks} trucks</p>

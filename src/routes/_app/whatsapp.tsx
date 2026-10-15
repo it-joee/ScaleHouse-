@@ -81,9 +81,9 @@ function WhatsAppPage() {
             if (standing.count === 0) return null;
             return (
               <div key={company.id} className="rounded-lg border border-line bg-surface p-4">
-                <p className="text-xs font-semibold tracking-widest text-muted uppercase">{company.code}</p>
-                <p className="font-display text-2xl">{tonnesLeft(standing.stillToCome)}</p>
-                <p className="text-sm text-muted">
+                <p className="text-xs font-bold tracking-widest text-muted uppercase">{company.code}</p>
+                <p className="font-display text-2xl font-extrabold tracking-tight tabular-nums">{tonnesLeft(standing.stillToCome)}</p>
+                <p className="text-sm font-medium text-muted">
                   of {formatMt(standing.promised)} MT · {standing.count} contracts
                 </p>
               </div>

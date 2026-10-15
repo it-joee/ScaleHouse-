@@ -99,8 +99,8 @@ function MarketPage() {
             return (
               <div key={hub.id} className="rounded-md border border-line px-3 py-3">
                 <p className="text-xs font-semibold tracking-wide text-muted uppercase">{hub.region || "Hub"}</p>
-                <p className="font-display text-2xl">{hub.name}</p>
-                <p className="mt-1 text-sm tabular-nums">{quote ? formatGhs(quote.pricePerMt) : "No quote"}</p>
+                <p className="font-display text-2xl font-bold tracking-tight">{hub.name}</p>
+                <p className="mt-1 text-sm font-semibold tabular-nums">{quote ? formatGhs(quote.pricePerMt) : "No quote"}</p>
                 <p className="text-xs text-muted">{quote ? formatDate(quote.quotedOn) : "Post a price"}</p>
               </div>
             );

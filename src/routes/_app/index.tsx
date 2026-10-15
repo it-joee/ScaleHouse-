@@ -105,8 +105,8 @@ function BoardPage() {
                 <p className="font-semibold">
                   {company.code} · {company.name}
                 </p>
-                <p className="tabular-nums text-muted">
-                  {tonnesLeft(standing.stillToCome)} of {formatMt(standing.promised)} MT
+                <p className="tabular-nums font-semibold text-ink">
+                  {tonnesLeft(standing.stillToCome)} <span className="font-normal text-muted">of {formatMt(standing.promised)} MT</span>
                 </p>
               </li>
             ))}

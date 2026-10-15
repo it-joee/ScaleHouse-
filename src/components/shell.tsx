@@ -83,7 +83,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <aside className="no-print hidden border-r border-line bg-surface md:sticky md:top-0 md:z-20 md:flex md:h-screen md:flex-col">
         <div className="shrink-0 border-b border-line px-4 py-5">
           <p className="text-xs font-semibold tracking-widest text-primary uppercase">JNI</p>
-          <p className="font-display text-2xl">Scalehouse</p>
+          <p className="font-display text-2xl font-bold tracking-tight">Scalehouse</p>
         </div>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
           {links.map((link) => (
@@ -103,7 +103,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <header className="no-print sticky top-0 z-20 border-b border-line bg-bg">
           <div className="flex items-center justify-between gap-3 px-4 py-2.5 md:px-6">
             <div className="flex min-w-0 items-center gap-3">
-              <p className="font-display text-xl md:hidden">Scalehouse</p>
+              <p className="font-display text-xl font-bold tracking-tight md:hidden">Scalehouse</p>
               <div className="flex items-center gap-2">
                 <label
                   htmlFor="company-select"

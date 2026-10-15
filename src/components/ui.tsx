@@ -138,7 +138,7 @@ export function Panel({
     <section className="rounded-lg border border-line bg-surface">
       {title ? (
         <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-          <h2 className="font-display text-xl text-ink">{title}</h2>
+          <h2 className="font-display text-xl font-bold text-ink">{title}</h2>
           {action}
         </div>
       ) : null}
@@ -150,9 +150,9 @@ export function Panel({
 export function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
     <div className="rounded-lg border border-line bg-surface px-4 py-3">
-      <p className="text-xs font-semibold tracking-widest text-muted uppercase">{label}</p>
-      <p className="mt-1 font-display text-3xl text-ink tabular-nums">{value}</p>
-      {note ? <p className="mt-1 text-sm text-muted">{note}</p> : null}
+      <p className="text-xs font-bold tracking-widest text-muted uppercase">{label}</p>
+      <p className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink tabular-nums">{value}</p>
+      {note ? <p className="mt-1 text-sm font-medium text-muted">{note}</p> : null}
     </div>
   );
 }

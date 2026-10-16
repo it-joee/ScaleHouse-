@@ -34,3 +34,14 @@ screenshots/
 *.zip
 .grok/
 .project_id
+.cursor/
+.vscode/
+.idea/
+.agents/
+
+# Agent instructions and internal configurations
+AGENTS.md
+AGENTS.*.md
+*.agent.md
+CLAUDE.md
+GEMINI.md

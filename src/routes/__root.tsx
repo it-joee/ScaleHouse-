@@ -14,7 +14,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Shared scalehouse for the JNI sister companies: gate intake, weighbridge, inspection, French voice cues, and price variance.",
+          "Shared scalehouse for JNI companies: gate intake, weighbridge, inspection, French voice cues, and price variance.",
       },
       { name: "theme-color", content: "#1b4332" },
     ],

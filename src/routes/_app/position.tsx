@@ -31,7 +31,7 @@ function PositionPage() {
       <div>
         <h1 className="font-display text-4xl">{focus ? `${focus.company.name} Position` : "Position"}</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Track tonnage currently in the yard, committed capital, received volumes, and internal transfers across all sister companies.
+          Track tonnage currently in the yard, committed capital, received volumes, and internal transfers across all companies.
         </p>
         <Link to="/contracts" className="mt-2 inline-flex text-sm font-semibold text-primary">
           View contracts
@@ -46,7 +46,7 @@ function PositionPage() {
           <Stat label="Contract left" value={tonnesLeft(paper(focus.company.id).stillToCome)} note={`${formatMt(paper(focus.company.id).promised)} MT promised`} />
         </div>
       ) : null}
-      <Panel title="All Sister Companies">
+      <Panel title="All Companies">
         <div className="space-y-3 md:hidden">
           {positions.map(({ company, position }) => (
             <div key={company.id} className="border-b border-line pb-3 last:border-0">

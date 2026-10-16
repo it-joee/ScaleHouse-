@@ -1,4 +1,4 @@
--- A contract is the paper a sister house signed with a supplier.
+-- A contract is the paper a company signed with a supplier.
 -- Received tonnes are computed from later tickets, not stored here.
 
 create table if not exists contracts (

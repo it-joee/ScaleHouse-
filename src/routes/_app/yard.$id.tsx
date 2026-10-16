@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Pencil } from "lucide-react";
 import {
   bridgeNetMt,
   canEditCommercial,
@@ -26,6 +27,7 @@ import {
 import { clearException, setCommercial, updateDelivery } from "@/lib/scalehouse.functions";
 import { isTransportError } from "@/lib/outbox";
 import { useYard } from "@/components/yard-provider";
+import { parsePhotos } from "@/lib/photo";
 import { DeliveryForm, draftFromDelivery, payloadFromDraft } from "@/components/delivery-form";
 import { MovementForm } from "@/components/movement-form";
 import { Button, Field, Panel, PricePill, StatusPill, control, controlClass, scrollToFirstError } from "@/components/ui";
@@ -37,6 +39,7 @@ function TicketPage() {
   const { workspace, user, reload, queueUpdate, pendingIds } = useYard();
   const open = workspace?.gate === "open" ? workspace : null;
   const priceFormRef = useRef<HTMLFormElement | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [price, setPrice] = useState<string | null>(null);
   const [hub, setHub] = useState<string | null>(null);
   const [priceError, setPriceError] = useState<string | null>(null);
@@ -49,7 +52,7 @@ function TicketPage() {
       <div>
         <h1 className="font-display text-4xl">Not on the log</h1>
         <Link to="/yard" className="mt-3 inline-flex text-sm font-semibold text-primary">
-          Back to the yard
+          Back to trucks
         </Link>
       </div>
     );
@@ -70,59 +73,80 @@ function TicketPage() {
   const cover = contractForDelivery(delivery, contractBooks(open.contracts, open.deliveries));
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <div className="space-y-4">
-        <div className="no-print">
-          <Link to="/yard" className="text-sm font-semibold text-primary">
-            Yard
-          </Link>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
+    <div className="space-y-6">
+      <div className="no-print space-y-2">
+        <Link to="/yard" className="inline-flex text-sm font-semibold text-primary">
+          ← Trucks
+        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <h1 className="font-display text-4xl">{delivery.truckNumber || "No plate"}</h1>
             <StatusPill status={delivery.status} />
             <PricePill flag={flag} />
           </div>
-          <p className="mt-1 text-muted">
-            {company?.name ?? "Company"} · {delivery.waybill || "No waybill"} · {formatDate(delivery.loggedOn)}
-          </p>
-          {cover ? (
-            <p className="no-print mt-2 text-sm">
-              Counts against {cover.contract.supplierName}: {tonnesLeft(cover.stillToCome)} of {formatMt(cover.contract.tonnes)} MT.
-            </p>
+          {canEditYard(open.me.role) ? (
+            <Button
+              variant={isEditing ? "quiet" : "primary"}
+              onClick={() => setIsEditing((prev) => !prev)}
+              className="shrink-0"
+            >
+              {isEditing ? (
+                "Cancel edit"
+              ) : (
+                <>
+                  <Pencil className="size-4" />
+                  Edit
+                </>
+              )}
+            </Button>
           ) : null}
         </div>
-        <article className="print-sheet">
-          <p className="text-xs font-semibold tracking-widest uppercase">JNI Scalehouse · Delivery receipt</p>
-          <h1 className="mt-2 font-display text-3xl">{company?.name}</h1>
-          <p>
-            Waybill {delivery.waybill || "—"} · Truck {delivery.truckNumber || "—"} · {formatDate(delivery.loggedOn)}
+        <p className="text-muted">
+          {company?.name ?? "Company"} · {delivery.waybill || "No waybill"} · {formatDate(delivery.loggedOn)}
+        </p>
+        {cover ? (
+          <p className="no-print text-sm">
+            Counts against {cover.contract.supplierName}: {tonnesLeft(cover.stillToCome)} of {formatMt(cover.contract.tonnes)} MT.
           </p>
-          <p>
-            Driver {delivery.driverName || "—"} · {delivery.driverContact || "no phone"} · Origin {delivery.origin || "—"}
-          </p>
-          <p>
-            Supplier {delivery.supplierName || "—"} · Warehouse {delivery.warehouse || "—"}
-          </p>
-          <p>
-            Declared {formatMt(delivery.declaredMt)} MT · SGS {formatMt(capturedSgs(delivery))} MT · Bridge net{" "}
-            {formatMt(net)} MT · Gap {formatMt(gap)} MT
-          </p>
-          <p>
-            Moisture {delivery.moisturePct ?? "—"}% · Seal {delivery.brokenSeal ? "BROKEN" : "intact"} · Damaged bags{" "}
-            {delivery.damagedBags}
-          </p>
-          <p>Officer {delivery.officer || "—"} · Status {delivery.status}</p>
-          {delivery.comment ? <p>Note: {delivery.comment}</p> : null}
-        </article>
-        {canEditYard(open.me.role) ? (
-          <div className="no-print rounded-lg border border-line bg-surface p-4">
+        ) : null}
+      </div>
+
+      <article className="print-sheet">
+        <p className="text-xs font-semibold tracking-widest uppercase">JNI Scalehouse · Delivery receipt</p>
+        <h1 className="mt-2 font-display text-3xl">{company?.name}</h1>
+        <p>
+          Waybill {delivery.waybill || "—"} · Truck {delivery.truckNumber || "—"} · {formatDate(delivery.loggedOn)}
+        </p>
+        <p>
+          Driver {delivery.driverName || "—"} · {delivery.driverContact || "no phone"} · Origin {delivery.origin || "—"}
+        </p>
+        <p>
+          Supplier {delivery.supplierName || "—"} · Warehouse {delivery.warehouse || "—"}
+        </p>
+        <p>
+          Declared {formatMt(delivery.declaredMt)} MT · SGS {formatMt(capturedSgs(delivery))} MT · Bridge net{" "}
+          {formatMt(net)} MT · Gap {formatMt(gap)} MT
+        </p>
+        <p>
+          Moisture {delivery.moisturePct ?? "—"}% · Seal {delivery.brokenSeal ? "BROKEN" : "intact"} · Damaged bags{" "}
+          {delivery.damagedBags}
+        </p>
+        <p>Officer {delivery.officer || "—"} · Status {delivery.status}</p>
+        {delivery.comment ? <p>Note: {delivery.comment}</p> : null}
+      </article>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="space-y-4">
+          {canEditYard(open.me.role) && isEditing ? (
             <DeliveryForm
-              key={delivery.modifiedAt}
+              key={delivery.id}
               initial={draftFromDelivery(delivery)}
               companies={open.companies}
               commodities={open.commodities}
               hubs={open.hubs}
               warehouses={warehouses}
               openPlates={openPlates}
+              mode="cards"
               submitLabel="Save ticket"
               onSubmit={async (draft) => {
                 const data = { id: delivery.id, ...payloadFromDraft(draft), actorName: actor };
@@ -139,23 +163,223 @@ function TicketPage() {
                 }
               }}
             />
-          </div>
-        ) : (
-          <div className="no-print space-y-3 rounded-lg border border-line bg-surface p-4 text-sm">
-            <Row label="Commodity" value={commodity?.name ?? delivery.commodityId} />
-            <Row label="Declared" value={`${formatMt(delivery.declaredMt)} MT`} />
-            <Row label="SGS" value={`${formatMt(capturedSgs(delivery))} MT`} />
-            <Row label="Bridge net" value={`${formatMt(net)} MT`} />
-            <Row label="Driver" value={`${delivery.driverName || "—"} · ${delivery.driverContact || "no phone"}`} />
-            <Row label="Supplier" value={`${delivery.supplierName || "—"} · ${delivery.supplierContact || ""}`} />
-            <Row label="Warehouse" value={delivery.warehouse || "—"} />
-            <Row label="Officer" value={delivery.officer || "—"} />
-            {delivery.comment ? <p className="whitespace-pre-wrap">{delivery.comment}</p> : null}
-            {delivery.photoUrl ? (
-              <img src={delivery.photoUrl} alt="Truck" className="max-h-56 rounded-md border border-line object-cover" />
-            ) : null}
-          </div>
-        )}
+          ) : (
+            <div className="space-y-6">
+              {/* Card 1: Waybill */}
+              <div className="no-print space-y-4 rounded-lg border border-line bg-surface p-5 shadow-xs">
+                <div className="flex items-center justify-between border-b border-line pb-3">
+                  <h2 className="font-display text-2xl">Waybill</h2>
+                  {canEditYard(open.me.role) ? (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                    >
+                      <Pencil className="size-3.5" />
+                      Edit
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <span className="text-xs font-medium text-muted">Company</span>
+                    <p className="mt-0.5 text-sm font-semibold">{company ? `${company.code} · ${company.name}` : "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Date</span>
+                    <p className="mt-0.5 text-sm font-semibold">{formatDate(delivery.loggedOn)}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Waybill number</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.waybill || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Truck number</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.truckNumber || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Commodity</span>
+                    <p className="mt-0.5 text-sm font-semibold">{commodity?.name ?? delivery.commodityId}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Declared quantity (MT)</span>
+                    <p className="mt-0.5 text-sm font-semibold tabular-nums">{formatMt(delivery.declaredMt)} MT</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">SGS quantity (MT)</span>
+                    <p className="mt-0.5 text-sm font-semibold tabular-nums">{formatMt(capturedSgs(delivery))} MT</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Origin</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.origin || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Driver</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.driverName || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Driver contact</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.driverContact || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Supplier</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.supplierName || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Supplier contact</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.supplierContact || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Contract quantity (MT)</span>
+                    <p className="mt-0.5 text-sm font-semibold tabular-nums">{formatMt(delivery.contractQtyMt)} MT</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Contract balance (MT)</span>
+                    <p className="mt-0.5 text-sm font-semibold tabular-nums">{formatMt(delivery.contractBalMt)} MT</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Bridge and inspection */}
+              <div className="no-print space-y-4 rounded-lg border border-line bg-surface p-5 shadow-xs">
+                <div className="flex items-center justify-between border-b border-line pb-3">
+                  <h2 className="font-display text-2xl">Bridge and inspection</h2>
+                  {canEditYard(open.me.role) ? (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                    >
+                      <Pencil className="size-3.5" />
+                      Edit
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <span className="text-xs font-medium text-muted">Gross (kg) / Tare (kg)</span>
+                    <p className="mt-0.5 text-sm font-semibold tabular-nums">
+                      {delivery.grossKg ? `${delivery.grossKg.toLocaleString()} kg` : "—"} / {delivery.tareKg ? `${delivery.tareKg.toLocaleString()} kg` : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Bridge net</span>
+                    <p className="mt-0.5 text-sm font-semibold tabular-nums">{formatMt(net)} MT</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Moisture</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.moisturePct !== null ? `${delivery.moisturePct}%` : "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Damaged bags</span>
+                    <p className="mt-0.5 text-sm font-semibold tabular-nums">{delivery.damagedBags ?? 0}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Seal status</span>
+                    <p className="mt-0.5 text-sm font-semibold">
+                      {delivery.brokenSeal ? <span className="text-accent font-bold">BROKEN</span> : "Intact"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Purchase price (GHS / MT)</span>
+                    <p className="mt-0.5 text-sm font-semibold tabular-nums">{formatGhs(delivery.purchasePriceMt)}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Market hub</span>
+                    <p className="mt-0.5 text-sm font-semibold">
+                      {open.hubs.find((h) => h.id === delivery.marketHubId)?.name || "Not set"}
+                    </p>
+                  </div>
+                </div>
+
+                {delivery.qcNote ? (
+                  <div className="border-t border-line/60 pt-3">
+                    <span className="text-xs font-medium text-muted">QC Note</span>
+                    <p className="mt-0.5 text-sm">{delivery.qcNote}</p>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Card 3: Dispatch */}
+              <div className="no-print space-y-4 rounded-lg border border-line bg-surface p-5 shadow-xs">
+                <div className="flex items-center justify-between border-b border-line pb-3">
+                  <h2 className="font-display text-2xl">Dispatch</h2>
+                  {canEditYard(open.me.role) ? (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                    >
+                      <Pencil className="size-3.5" />
+                      Edit
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <span className="text-xs font-medium text-muted">Status</span>
+                    <div className="mt-1"><StatusPill status={delivery.status} /></div>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Warehouse</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.warehouse || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Delivered to warehouse</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.deliveredOn ? formatDate(delivery.deliveredOn) : "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Date offloaded</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.offloadedOn ? formatDate(delivery.offloadedOn) : "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted">Officer in charge</span>
+                    <p className="mt-0.5 text-sm font-semibold">{delivery.officer || "—"}</p>
+                  </div>
+                </div>
+
+                {delivery.comment ? (
+                  <div className="border-t border-line/60 pt-3">
+                    <span className="text-xs font-medium text-muted">Comment / Instructions</span>
+                    <p className="mt-0.5 text-sm whitespace-pre-wrap text-muted">{delivery.comment}</p>
+                  </div>
+                ) : null}
+
+                {delivery.photoUrl ? (() => {
+                  const photos = parsePhotos(delivery.photoUrl);
+                  if (photos.length === 0) return null;
+                  return (
+                    <div className="border-t border-line/60 pt-3">
+                      <span className="text-xs font-medium text-muted">
+                        Truck Photo{photos.length > 1 ? `s (${photos.length})` : ""}
+                      </span>
+                      <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {photos.map((url, idx) => (
+                          <a
+                            key={idx}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group block overflow-hidden rounded-md border border-line"
+                            title="Click to view full size"
+                          >
+                            <img
+                              src={url}
+                              alt={`Truck photo ${idx + 1}`}
+                              className="h-36 w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                            />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })() : null}
+              </div>
+            </div>
+          )}
         {pendingIds.has(delivery.id) ? (
           <p className="no-print rounded-lg border border-line bg-accent-soft px-4 py-3 text-sm font-semibold text-accent">
             This ticket is on the phone. It has not reached the yard log yet.
@@ -163,7 +387,7 @@ function TicketPage() {
         ) : null}
         <TicketExceptions deliveryId={delivery.id} />
         {canMoveStock(open.me.role) && !delivery.id.startsWith("local_") ? (
-          <Panel title="Move this load to a sister">
+          <Panel title="Move this load to another company">
             <MovementForm
               companies={open.companies}
               commodities={open.commodities}
@@ -179,76 +403,92 @@ function TicketPage() {
             />
           </Panel>
         ) : null}
-        {!canEditYard(open.me.role) && canEditCommercial(open.me.role) ? (
-          <form
-            ref={priceFormRef}
-            noValidate
-            className="no-print space-y-3 rounded-lg border border-line bg-surface p-4"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setError(null);
-              setPriceError(null);
-              const purchase = (price ?? (delivery.purchasePriceMt === null ? "" : String(delivery.purchasePriceMt))).trim();
-              if (purchase !== "") {
-                const num = Number(purchase);
-                if (Number.isNaN(num) || num <= 0) {
-                  setPriceError("Price must be a positive number.");
-                  setTimeout(() => scrollToFirstError(priceFormRef.current), 40);
-                  return;
+        {!canEditYard(open.me.role) && canEditCommercial(open.me.role) ? (() => {
+          const initialPrice = delivery.purchasePriceMt === null ? "" : String(delivery.purchasePriceMt);
+          const initialHub = delivery.marketHubId ?? "";
+          const currentPrice = price ?? initialPrice;
+          const currentHub = hub ?? initialHub;
+          const isPriceDirty = currentPrice.trim() !== initialPrice.trim() || currentHub !== initialHub;
+          return (
+            <form
+              ref={priceFormRef}
+              noValidate
+              className="no-print space-y-3 rounded-lg border border-line bg-surface p-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (!isPriceDirty) return;
+                setError(null);
+                setPriceError(null);
+                const purchase = currentPrice.trim();
+                if (purchase !== "") {
+                  const num = Number(purchase);
+                  if (Number.isNaN(num) || num <= 0) {
+                    setPriceError("Price must be a positive number.");
+                    setTimeout(() => scrollToFirstError(priceFormRef.current), 40);
+                    return;
+                  }
                 }
-              }
-              setCommercial({
-                data: {
-                  id: delivery.id,
-                  purchasePriceMt: purchase === "" ? null : Number(purchase),
-                  marketHubId: hub ?? delivery.marketHubId,
-                  actorName: actor,
-                },
-              })
-                .then(() => {
-                  setMessage("Price saved.");
-                  setPriceError(null);
-                  reload();
+                setCommercial({
+                  data: {
+                    id: delivery.id,
+                    purchasePriceMt: purchase === "" ? null : Number(purchase),
+                    marketHubId: currentHub || null,
+                    actorName: actor,
+                  },
                 })
-                .catch((err: unknown) => {
-                  const msg = err instanceof Error ? err.message : "Could not save the price.";
-                  setError(msg);
-                  setTimeout(() => scrollToFirstError(priceFormRef.current), 40);
-                });
-            }}
-          >
-            <h2 className="font-display text-2xl">Purchase price</h2>
-            <Field label="GHS per tonne" error={priceError}>
-              <input
-                className={controlClass(Boolean(priceError))}
-                aria-invalid={Boolean(priceError)}
-                inputMode="decimal"
-                value={price ?? (delivery.purchasePriceMt === null ? "" : String(delivery.purchasePriceMt))}
-                onChange={(event) => {
-                  setPrice(event.target.value);
-                  setPriceError(null);
-                }}
-              />
-            </Field>
-            <Field label="Market hub">
-              <select
-                className={controlClass(false)}
-                value={hub ?? delivery.marketHubId ?? ""}
-                onChange={(event) => setHub(event.target.value)}
+                  .then(() => {
+                    setMessage("Price saved.");
+                    setPriceError(null);
+                    setPrice(null);
+                    setHub(null);
+                    reload();
+                  })
+                  .catch((err: unknown) => {
+                    const msg = err instanceof Error ? err.message : "Could not save the price.";
+                    setError(msg);
+                    setTimeout(() => scrollToFirstError(priceFormRef.current), 40);
+                  });
+              }}
+            >
+              <h2 className="font-display text-2xl">Purchase price</h2>
+              <Field label="GHS per tonne" error={priceError}>
+                <input
+                  className={controlClass(Boolean(priceError))}
+                  aria-invalid={Boolean(priceError)}
+                  inputMode="decimal"
+                  value={currentPrice}
+                  onChange={(event) => {
+                    setPrice(event.target.value);
+                    setPriceError(null);
+                  }}
+                />
+              </Field>
+              <Field label="Market hub">
+                <select
+                  className={controlClass(false)}
+                  value={currentHub}
+                  onChange={(event) => setHub(event.target.value)}
+                >
+                  <option value="">Not set</option>
+                  {open.hubs.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              {error ? <p className="text-sm text-accent" role="alert">{error}</p> : null}
+              {message ? <p className="text-sm text-primary">{message}</p> : null}
+              <Button
+                type="submit"
+                disabled={!isPriceDirty}
+                title={!isPriceDirty ? "No changes to save" : undefined}
               >
-                <option value="">Not set</option>
-                {open.hubs.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            {error ? <p className="text-sm text-accent" role="alert">{error}</p> : null}
-            {message ? <p className="text-sm text-primary">{message}</p> : null}
-            <Button type="submit">Save price</Button>
-          </form>
-        ) : null}
+                Save price
+              </Button>
+            </form>
+          );
+        })() : null}
       </div>
       <aside className="space-y-4">
         <div className="no-print rounded-lg border border-line bg-surface p-4">
@@ -288,6 +528,7 @@ function TicketPage() {
           </ol>
         </div>
       </aside>
+    </div>
     </div>
   );
 }

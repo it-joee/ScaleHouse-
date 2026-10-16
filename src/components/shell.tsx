@@ -29,7 +29,7 @@ const noGateSessionOnServer = () => false;
 
 const LINKS = [
   { to: "/", label: "Board", icon: LayoutDashboard, exact: true },
-  { to: "/yard", label: "Yard", icon: Truck, exact: false },
+  { to: "/yard", label: "Trucks", icon: Truck, exact: false },
   { to: "/intake", label: "Add intake/waybill", shortLabel: "Intake", icon: ClipboardPlus, exact: true, yard: true },
   { to: "/exceptions", label: "Flagged Issues", shortLabel: "Issues", icon: AlertTriangle, exact: true },
   { to: "/position", label: "Position", icon: Warehouse, exact: true },
@@ -117,9 +117,9 @@ export function Shell({ children }: { children: ReactNode }) {
                     className="h-8.5 cursor-pointer appearance-none rounded-md border border-line bg-surface py-1 pr-7 pl-2.5 text-xs font-semibold text-ink shadow-xs transition hover:border-ink/30 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
                     value={companyId}
                     onChange={(event) => setCompanyId(event.target.value)}
-                    aria-label="Filter by sister company"
+                    aria-label="Filter by company"
                   >
-                    <option value="all">All sister companies</option>
+                    <option value="all">All companies</option>
                     {workspace.companies.map((company) => (
                       <option key={company.id} value={company.id}>
                         {company.code} · {company.name}

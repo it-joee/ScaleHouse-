@@ -453,7 +453,7 @@ export function listExceptions(
             .map((other) => other.id)
             .sort()
             .join(","),
-          detail: `Plate ${delivery.truckNumber} is also in the yard for another sister company.`,
+          detail: `Plate ${delivery.truckNumber} is also in the yard for another company.`,
         });
       }
     }

@@ -1,4 +1,4 @@
--- JNI Scalehouse: shared yard for sister companies.
+-- JNI Scalehouse: shared yard for companies.
 -- Rows are organization data. Admission is the staff table, not per-user ownership.
 
 create table if not exists companies (

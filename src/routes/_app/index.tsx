@@ -44,7 +44,7 @@ function BoardPage() {
         <div>
           <h1 className="font-display text-4xl">Board</h1>
           <p className="mt-2 max-w-2xl text-muted">
-            Live overview of yard activity, scalehouse weights, flagged issues, and delivery status across all sister companies.
+            Live overview of yard activity, scalehouse weights, flagged issues, and delivery status across all companies.
           </p>
         </div>
         <div className="flex gap-2">

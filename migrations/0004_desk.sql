@@ -1,4 +1,4 @@
--- Exception clears and sister-company movements.
+-- Exception clears and company movements.
 -- Exceptions themselves are computed from the log. A clear dismisses one
 -- fingerprint; if the truck changes, the same problem opens again.
 

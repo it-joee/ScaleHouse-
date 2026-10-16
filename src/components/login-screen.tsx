@@ -68,7 +68,9 @@ export function LoginScreen() {
     setFieldErrors({});
     try {
       window.sessionStorage.setItem(STORAGE_MODE, nextMode);
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const handleNameChange = (val: string) => {
@@ -76,7 +78,9 @@ export function LoginScreen() {
     clearFieldError("name");
     try {
       window.sessionStorage.setItem(STORAGE_NAME, val);
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const handleEmailChange = (val: string) => {
@@ -84,7 +88,9 @@ export function LoginScreen() {
     clearFieldError("email");
     try {
       window.sessionStorage.setItem(STORAGE_EMAIL, val);
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const handlePasswordChange = (val: string) => {
@@ -92,7 +98,9 @@ export function LoginScreen() {
     clearFieldError("password");
     try {
       window.sessionStorage.setItem(STORAGE_PWD, val);
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const clearFieldError = (field: string) => {
@@ -191,7 +199,7 @@ export function LoginScreen() {
             Scalehouse Operations
           </h1>
           <p className="mt-4 max-w-lg text-lg text-muted leading-relaxed">
-            Centralized weighbridge management, truck intake, and commodity tracking across all sister companies.
+            Centralized weighbridge management, truck intake, and commodity tracking across all companies.
           </p>
           <ul className="mt-8 space-y-3.5 text-sm text-muted">
             <li className="flex items-center gap-3">
@@ -210,7 +218,7 @@ export function LoginScreen() {
               <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Check className="size-3.5 stroke-[2.5]" />
               </span>
-              <span>Unified commodity reporting across sister entities</span>
+              <span>Unified commodity reporting across all entities</span>
             </li>
           </ul>
         </div>

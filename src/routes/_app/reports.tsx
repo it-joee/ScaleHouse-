@@ -131,7 +131,7 @@ function ReportsPage() {
         <Stat label="SGS captured" value={formatMt(sum(deliveries.map((row) => capturedSgs(row))))} note="MT" />
         <Stat label="Gap" value={formatMt(sum(deliveries.map((row) => weightGap(row))))} note="SGS minus declared" />
       </div>
-      <Panel title="Performance by sister company">
+      <Panel title="Performance by company">
         <TonneChart rows={chart} />
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-left text-sm">

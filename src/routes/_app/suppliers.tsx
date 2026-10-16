@@ -28,7 +28,7 @@ function SuppliersPage() {
       <div>
         <h1 className="font-display text-4xl">Suppliers</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Track supplier delivery history, total delivered tonnage, and quality records across all sister houses. Select any supplier to view their ticket history and open contract balances.
+          Track supplier delivery history, total delivered tonnage, and quality records across all companies. Select any supplier to view their ticket history and open contract balances.
         </p>
       </div>
       <div className="max-w-md">

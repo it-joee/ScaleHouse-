@@ -22,7 +22,7 @@ function IntakePage() {
         <h1 className="font-display text-4xl">Intake is a floor desk</h1>
         <p className="mt-2 text-muted">Executives and procurement can read the log. The gate team records the truck.</p>
         <Link to="/yard" className="mt-4 inline-flex text-sm font-semibold text-primary">
-          Back to the yard
+          Back to trucks
         </Link>
       </div>
     );

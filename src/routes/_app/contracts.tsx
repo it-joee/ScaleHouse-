@@ -47,7 +47,7 @@ function ContractsPage() {
     const selectedCompany = company || (companyId !== "all" ? companyId : "");
     const errs: Record<string, string> = {};
     if (!selectedCompany) {
-      errs.company = "Please select a sister house.";
+      errs.company = "Please select a company.";
     }
     if (!supplier.trim()) {
       errs.supplier = "Supplier name is required.";
@@ -77,7 +77,7 @@ function ContractsPage() {
       <div>
         <h1 className="font-display text-4xl">Contracts</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Track contracted tonnage for each sister company and supplier. Deliveries automatically draw down contract balances as trucks arrive and offload at the yard.
+          Track contracted tonnage for each company and supplier. Deliveries automatically draw down contract balances as trucks arrive and offload at the yard.
         </p>
       </div>
       {focus ? (
@@ -88,7 +88,7 @@ function ContractsPage() {
           <Stat label="Still to come" value={tonnesLeft(focus.stillToCome)} note="Promised, not yet on a ticket" />
         </div>
       ) : (
-        <Panel title="Summary by sister company">
+        <Panel title="Summary by company">
           <ul className="divide-y divide-line">
             {houses.map((item) => {
               const standing = houseContract(item.id, books);

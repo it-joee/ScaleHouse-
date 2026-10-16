@@ -147,8 +147,8 @@ function parseDelivery(input: unknown): DeliveryInput {
   if (!Number.isInteger(bags) || bags < 0 || bags > 100000) {
     throw new Error("Damaged bags should be a whole number.");
   }
-  const photoUrl = str(row.photoUrl, 500_000);
-  if (photoUrl.length > 450_000) throw new Error("That photo is too large.");
+  const photoUrl = str(row.photoUrl, 2_500_000);
+  if (photoUrl.length > 2_500_000) throw new Error("Photos total size is too large.");
   const moisture = nonNeg(numOrNull(row.moisturePct), "Moisture");
   if (moisture !== null && moisture > 100) throw new Error("Moisture should be a percent.");
   const truckNumber = str(row.truckNumber, 40);

@@ -48,9 +48,9 @@ function YardList() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-display text-4xl">Yard</h1>
+        <h1 className="font-display text-4xl">Trucks</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Monitor incoming and processed trucks across all sister companies. Track weighbridge status, waybills, and inspection stages in real time.
+          Monitor incoming and processed trucks across all companies. Track weighbridge status, waybills, and inspection stages in real time.
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
@@ -88,7 +88,7 @@ function YardList() {
       <p className="text-sm text-muted tabular-nums">{rows.length} trucks</p>
       <div className="space-y-2 md:hidden">
         {rows.map((delivery) => (
-          <Link key={delivery.id} to="/yard/$id" params={{ id: delivery.id }} className="block rounded-lg border border-line bg-surface p-3">
+          <div key={delivery.id} className="rounded-lg border border-line bg-surface p-3">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p className="font-semibold">{delivery.truckNumber || "No plate"}</p>
@@ -97,10 +97,19 @@ function YardList() {
               </div>
               <StatusPill status={delivery.status} />
             </div>
-            <p className="mt-2 text-sm tabular-nums">
-              {formatMt(delivery.declaredMt)} declared · {formatMt(capturedSgs(delivery))} SGS · gap {formatMt(weightGap(delivery))}
-            </p>
-          </Link>
+            <div className="mt-2 flex items-center justify-between gap-2 border-t border-line/60 pt-2">
+              <p className="text-xs tabular-nums text-muted">
+                {formatMt(delivery.declaredMt)} declared · {formatMt(capturedSgs(delivery))} SGS · gap {formatMt(weightGap(delivery))}
+              </p>
+              <Link
+                to="/yard/$id"
+                params={{ id: delivery.id }}
+                className="inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-line bg-surface px-3 text-xs font-semibold text-ink shadow-xs transition hover:bg-bg hover:border-ink/30"
+              >
+                More
+              </Link>
+            </div>
+          </div>
         ))}
       </div>
       <div className="no-print hidden overflow-x-auto rounded-lg border border-line bg-surface md:block">
@@ -116,17 +125,18 @@ function YardList() {
               <th className="px-3 py-3 font-semibold text-right">SGS</th>
               <th className="px-3 py-3 font-semibold text-right">Gap</th>
               <th className="px-3 py-3 font-semibold">Status</th>
+              <th className="px-3 py-3 font-semibold text-right">Action</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((delivery) => {
               const gap = weightGap(delivery);
               return (
-                <tr key={delivery.id} className="border-b border-line last:border-0">
+                <tr key={delivery.id} className="border-b border-line last:border-0 hover:bg-bg/40 transition-colors">
                   <td className="px-3 py-3 whitespace-nowrap tabular-nums">{formatDate(delivery.loggedOn)}</td>
                   <td className="px-3 py-3 font-semibold">{code(delivery.companyId)}</td>
                   <td className="px-3 py-3">
-                    <Link to="/yard/$id" params={{ id: delivery.id }} className="font-semibold text-primary">
+                    <Link to="/yard/$id" params={{ id: delivery.id }} className="font-semibold text-primary hover:underline">
                       {delivery.waybill || "Open"}
                     </Link>
                   </td>
@@ -139,6 +149,15 @@ function YardList() {
                   </td>
                   <td className="px-3 py-3">
                     <StatusPill status={delivery.status} />
+                  </td>
+                  <td className="px-3 py-3 text-right whitespace-nowrap">
+                    <Link
+                      to="/yard/$id"
+                      params={{ id: delivery.id }}
+                      className="inline-flex h-8 items-center justify-center rounded-md border border-line bg-surface px-3 text-xs font-semibold text-ink shadow-xs transition hover:bg-bg hover:border-ink/30"
+                    >
+                      More
+                    </Link>
                   </td>
                 </tr>
               );

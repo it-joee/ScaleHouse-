@@ -71,7 +71,7 @@ function WhatsAppPage() {
       <div>
         <h1 className="font-display text-4xl">WhatsApp</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Generate and share daily scalehouse summaries with executives and team members. Review current yard tonnage, flagged issues, and sister company delivery status directly via WhatsApp.
+          Generate and share daily scalehouse summaries with executives and team members. Review current yard tonnage, flagged issues, and company delivery status directly via WhatsApp.
         </p>
       </div>
       {houses.some((company) => houseContract(company.id, books).count > 0) ? (
